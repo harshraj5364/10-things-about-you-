@@ -331,6 +331,97 @@ body.modal-open{overflow:hidden}
 @keyframes titleIn{to{opacity:1;transform:none}}
 @keyframes subIn{to{opacity:.9;transform:none}}
 </style>
+
+<style id="ten-of-ten-polish">
+/* A more tactile paper moment */
+.fold-paper.folding .fold-sheet{
+  filter:drop-shadow(0 12px 14px rgba(44,24,12,.20));
+}
+.fold-paper.folding .fold-half{
+  box-shadow:0 10px 18px rgba(40,22,12,.20), inset 0 0 18px rgba(255,255,255,.12);
+}
+.fold-paper.crumpling .fold-sheet{
+  animation:crumpleStage 2.15s cubic-bezier(.16,.78,.18,1) forwards;
+}
+.fold-paper.crumpling .crumple-ball{
+  animation:ballAppear .82s cubic-bezier(.16,.8,.2,1) forwards;
+}
+.fold-paper.crumpling:after{
+  content:"";
+  position:absolute;left:50%;top:50%;width:130px;height:130px;
+  transform:translate(-50%,-50%) scale(.2);
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(255,239,209,.20),transparent 68%);
+  animation:paperGlow 1.25s ease-out forwards;
+  pointer-events:none;
+}
+@keyframes paperGlow{
+  0%{opacity:0;scale:.25}
+  35%{opacity:.75;scale:.8}
+  100%{opacity:0;scale:1.55}
+}
+
+/* Burst particles now have a tiny natural drift instead of a perfectly radial explosion */
+.burst-particle{
+  text-shadow:0 2px 8px rgba(55,30,16,.16);
+}
+@keyframes burstFly{
+  0%{opacity:0;transform:translate(-50%,-50%) scale(.08) rotate(0)}
+  13%{opacity:1}
+  34%{opacity:1}
+  100%{
+    opacity:0;
+    transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy)))
+               scale(var(--scale)) rotate(var(--spin));
+  }
+}
+
+/* Make the final reveal feel like the reward for opening all ten */
+#finalCenter{
+  background:rgba(24,15,10,0);
+  transition:background 1.1s ease;
+}
+#finalCenter.show{
+  background:rgba(24,15,10,.18);
+}
+.final-center .message{
+  animation:messageBreath 5s 1.7s ease-in-out infinite;
+}
+.final-center .mini{
+  letter-spacing:.2px;
+}
+.final-center h2{
+  text-wrap:balance;
+}
+@keyframes messageBreath{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-3px)}
+}
+
+/* Tiny floating dust/sparkle feel around the final message */
+.final-center .message:before,
+.final-center .message:after{
+  content:"✦";
+  position:absolute;
+  color:rgba(255,239,197,.72);
+  font-size:12px;
+  opacity:0;
+}
+.final-center .message:before{
+  left:8%;top:18%;animation:twinkle 2.8s 1.8s ease-in-out infinite;
+}
+.final-center .message:after{
+  right:9%;bottom:18%;animation:twinkle 3.2s 2.1s ease-in-out infinite reverse;
+}
+@keyframes twinkle{
+  0%,100%{opacity:0;transform:scale(.6) rotate(0)}
+  45%{opacity:1;transform:scale(1.15) rotate(18deg)}
+  65%{opacity:.25}
+}
+
+/* Prevent accidental text selection while tapping the interactive wall */
+.note,.close{user-select:none;-webkit-tap-highlight-color:transparent}
+</style>
 </head>
 
 <body>
@@ -506,10 +597,10 @@ function foldAndBurst(note,index){
     createBurst(x,y,index);
     foldPaper.className="fold-paper";
     note.classList.add("opened-placeholder");
-  },2240);
+  },2470);
 
   if(opened.size===10){
-    setTimeout(()=>document.getElementById("finalCenter").classList.add("show"),3650);
+    setTimeout(()=>document.getElementById("finalCenter").classList.add("show"),4100);
   }
 }
 
@@ -542,10 +633,10 @@ function createBurst(x,y,index){
     el.style.setProperty("--scale",(0.55+Math.random()*.7).toFixed(2));
     el.style.setProperty("--spin",(Math.random()*420-210)+"deg");
     // Deliberately slower: ~1.25–1.75 seconds.
-    el.style.setProperty("--dur",(1.75+Math.random()*.7)+"s");
+    el.style.setProperty("--dur",(1.85+Math.random()*.75)+"s");
     el.style.animationDelay=(Math.random()*.12)+"s";
     burstLayer.appendChild(el);
-    setTimeout(()=>el.remove(),3100);
+    setTimeout(()=>el.remove(),3300);
   }
 }
 </script>
