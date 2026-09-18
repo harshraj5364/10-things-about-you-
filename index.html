@@ -181,6 +181,16 @@ header p{margin:0;font-size:13px;opacity:.9;letter-spacing:.2px}
 .modal:before{content:"";position:absolute;top:9px;left:50%;width:64px;height:14px;transform:translateX(-50%);background:rgba(255,255,255,.38)}
 .close{position:absolute;right:12px;top:7px;border:0;background:none;font-size:28px;color:#49372d;cursor:pointer}
 .mnum{font:10px "DM Sans";letter-spacing:1.5px;opacity:.5}.modal h2{font-size:32px;margin:9px 0 17px}.modal p{font-size:18px;line-height:1.58;margin:0;white-space:pre-line}
+.modal{cursor:pointer}
+.modal:after{
+  content:"tap the letter again";
+  display:block;
+  margin-top:24px;
+  font:10px "DM Sans",Arial,sans-serif;
+  letter-spacing:1.7px;
+  text-transform:uppercase;
+  opacity:.42;
+}
 
 .fold-stage{
   position:fixed;z-index:55;left:0;top:0;width:0;height:0;pointer-events:none;
@@ -429,7 +439,7 @@ body.modal-open{overflow:hidden}
 <header>
   <div class="tiny">♡</div>
   <h1>10 little things about you</h1>
-  <p>okay… I had to make this one for day 10 😭 · click each note :)</p>
+  <p>okay… I had to make this one for day 10 😭 · click each note, then tap the letter again :)</p>
 </header>
 
 <section class="board">
@@ -454,7 +464,7 @@ body.modal-open{overflow:hidden}
     <button class="note n9"><span class="num">10</span><small>little thing #10</small><h2>Just… you ☀️</h2><span class="hint">tap to open ♡</span></button>
   </div>
 
-  <div class="footer">tap a sticky note to open it · <span id="count">0</span>/10 opened</div>
+  <div class="footer">tap a sticky note to open it · tap the letter again to crumble it · <span id="count">0</span>/10 opened</div>
   <div class="final" id="final">
     <div style="font-size:29px">♡</div>
     <h2>okay… that's enough feelings for one day 😭</h2>
@@ -533,12 +543,33 @@ document.querySelectorAll(".note").forEach((note,i)=>{
 
 document.getElementById("closeBtn").addEventListener("click",closeNote);
 overlay.addEventListener("click",e=>{if(e.target===overlay)closeNote()});
+
+modal.addEventListener("click",()=>{
+  // The first interaction opens the letter. The next tap anywhere on the
+  // opened letter starts the physical crumple.
+  if(activeNoteIndex===null || !overlay.classList.contains("show") || letterTapLocked) return;
+  letterTapLocked = true;
+  const note = activeNoteElement;
+  const index = activeNoteIndex;
+  closeNote();
+  foldAndBurst(note,index);
+  activeNoteIndex = null;
+  activeNoteElement = null;
+});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeNote()});
+
+let activeNoteIndex = null;
+let activeNoteElement = null;
+let letterTapLocked = false;
 
 function openNote(i,note){
   if(opened.has(i)) return;
   opened.add(i);
   count.textContent=opened.size;
+
+  activeNoteIndex = i;
+  activeNoteElement = note;
+  letterTapLocked = false;
 
   mnum.textContent=`LITTLE THING ${i+1} OF 10`;
   mtitle.textContent=data[i][0];
@@ -548,12 +579,6 @@ function openNote(i,note){
 
   overlay.classList.add("show");
   document.body.classList.add("modal-open");
-
-  // The physical folding starts after she has had a moment to read.
-  setTimeout(()=>{
-    closeNote();
-    foldAndBurst(note,i);
-  },1450);
 }
 
 function closeNote(){
